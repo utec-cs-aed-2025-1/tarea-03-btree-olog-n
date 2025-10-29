@@ -124,7 +124,7 @@ class Iterator_BTree{ //Solo In order
     stack_nodo.pop();
     stack_index.pop();
     if(index != this->current->count - 1){
-      stack_nodo.push(current->keys[index+1]);
+      stack_nodo.push(current);
       stack_index.push(index+1);
     }
     Node<TK>* temp = current->children[index + 1]; 

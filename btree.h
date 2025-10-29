@@ -30,6 +30,11 @@ class BTree {
   }  
   
   vector<TK> rangeSearch(TK begin, TK end){
+    if(begin > end){
+      vector<TK> v = {};
+      return v;
+    }
+    
     //Search
     vector<TK> ans; 
     Node<TK>* temp = root;
@@ -44,7 +49,7 @@ class BTree {
       }
       if(temp->keys[i] == begin){
         found = true; 
-        stack_nodo.push(temp); //Es necesario? 
+        stack_nodo.push(temp);  
         stack_index.push(i);
       }
       else if(i==temp->count){
@@ -54,7 +59,7 @@ class BTree {
         stack_nodo.push(temp);
         stack_index.push(i);
 
-        temp = temp->children[i]
+        temp = temp->children[i];
       }
     }
 
@@ -63,14 +68,14 @@ class BTree {
     Node<TK>* current = stack_nodo.topM();
     int index = stack_index.topM();
 
-    while (current->keys[index] < end && !stack_nodo.isEmpty())
+    while (current->keys[index] <= end && !stack_nodo.isEmpty())
     {
       ans.push_back(current->keys[index]);
 
       stack_nodo.pop();
       stack_index.pop();
-      if(index != this->current->count - 1){
-        stack_nodo.push(current->keys[index+1]);
+      if(index != this->current->count - 1){ 
+        stack_nodo.push(current);
         stack_index.push(index+1);
       }
       temp = current->children[index + 1]; 
@@ -86,7 +91,7 @@ class BTree {
     }
 
     return ans; 
-  }
+  } //Revisar overflow, casos excepcionales, imaginar algoritmo
 
   TK minKey();  // minimo valor de la llave en el arbol
   TK maxKey();  // maximo valor de la llave en el arbol
