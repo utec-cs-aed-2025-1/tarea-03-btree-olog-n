@@ -27,4 +27,114 @@ struct Node {
   }
 };
 
+template <typename T>
+struct Stk_Node{
+  private: 
+  T data;
+  Stk_Node* next;
+
+  public:
+  Stk_Node(){}
+  Stk_Node(T e): data(e){}
+  Stk_Node(T e, Stk_Node* n): data(e), next(n){}
+
+  ~Stk_Node(){
+    delete next; 
+  }
+};
+
+template <typename T>
+struct Stack {
+    Stk_Node<T>* top;
+    Stack() : top(nullptr) {};
+    Stack(T val) : top(new Stk_Node<T>(val)) {};
+    
+    bool isEmpty(){
+        return (top == nullptr);
+    }
+
+    ~Stack(){
+        while (!isEmpty()){
+            this->pop();
+        }
+    }
+    
+    void push(T newData){
+        Stk_Node<T>* nuevo = new Stk_Node<T>(newData);
+        nuevo->next = top;
+        top = nuevo;
+    }
+
+    void pop(){
+        if (isEmpty()){
+            throw std::runtime_error("error");
+        } else {
+            Stk_Node<T>* temp = top;
+            top = temp->next;
+            delete temp;
+        }
+    }
+
+    T topM(){
+        if (isEmpty()){
+            throw std::runtime_error("error");
+        }
+        else {
+            return this->top->data; 
+        }
+    }
+    
+};
+
+
+template <typename TK>
+class Iterator_BTree{ //Solo In order 
+  private: 
+    Node<TK>* current; 
+    Stack<Node<TK>*> stack_nodo; // Para InOrder
+    Stack<TK> stack_index; 
+    int index; 
+
+  public: 
+
+    Iterator_BTree(): current(nullptr){}
+
+    Iterator_BTree(Node<TK>* node): current(node){ 
+      Node<TK>* temp = node;
+      while (temp != nullptr) {
+        stack_iter.push(temp);
+        temp = temp->left;
+      }
+      ++(*this); //Current se convierte en el menor elemento
+      index = 0;
+    }
+  
+  Iterator_BTree<TK>& operator++(){ //In order, probar nuevo algoritmo
+    if(current == nullptr){
+      return this; 
+    }
+    
+    if (stack_index.isEmpty() && stack_nodo.isEmpty()) {
+      current = nullptr;
+      return this;
+    }
+
+    this->current = stack_nodo.topM();
+    this->index = stack_index.topM();
+    stack_nodo.pop();
+    stack_index.pop();
+    if(index != this->current->count - 1){
+      stack_nodo.push(current->keys[index+1]);
+      stack_index.push(index+1);
+    }
+    Node<TK>* temp = current->children[index + 1]; 
+    
+    while (temp != nullptr) {
+      stack_nodo.push(temp);
+      stack_index.push(0);
+      temp = temp->children[0];
+    }
+  }
+};
+
 #endif
