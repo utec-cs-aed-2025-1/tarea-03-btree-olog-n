@@ -83,7 +83,9 @@ class BTree {
 
       current = stack_nodo.topM();
       index = stack_index.topM();
-    }  
+    }
+
+    return ans; 
   }
 
   TK minKey();  // minimo valor de la llave en el arbol
