@@ -2,7 +2,6 @@
 #define BTree_H
 #include <iostream>
 #include "node.h"
-#include <vector>
 
 using namespace std;
 
@@ -12,8 +11,6 @@ class BTree {
   Node<TK>* root;
   int M;  // grado u orden del arbol
   int n; // total de elementos en el arbol 
-  Stack<Node<TK>*> stack_nodo;
-  Stack<int> stack_index; 
 
  public:
   BTree(int _M) : root(nullptr), M(_M), n(0) {}
