@@ -16,12 +16,38 @@ class BTree {
   Stack<int> stack_index; 
 
  public:
-  BTree(int _M) : root(nullptr), M(_M) {}
+  BTree(int _M) : root(nullptr), M(_M), n(0) {}
 
   bool search(TK key){ //indica si se encuentra o no un elemento
     return searchRecursive(root, key);
   }
-  void insert(TK key);//inserta un elemento
+
+  void insert(TK key) {
+    if (root == nullptr) {
+        root = new Node<TK>(M);
+        root->keys[0] = key;
+        root->count = 1;
+        root->leaf = true;
+        n = 1;
+        return;
+    }
+
+    if (root->count == M-1) {
+        Node<TK>* newRoot = new Node<TK>(M);
+        newRoot->leaf = false;
+        newRoot->children[0] = root;
+        split(newRoot, 0);
+        root = newRoot;
+    }
+    
+    insertRecursive(root, key);
+    n++;  
+  }
+
+
+
+
+
   void remove(TK key);//elimina un elemento
   int height();//altura del arbol. Considerar altura 0 para arbol vacio
   
@@ -35,7 +61,7 @@ class BTree {
       return v;
     }
     
-    //Search
+    //Search empieza aquíi
     vector<TK> ans; 
     Node<TK>* temp = root;
     bool found = false;
@@ -91,34 +117,47 @@ class BTree {
     }
 
     return ans; 
-  } //Revisar overflow, casos excepcionales, imaginar algoritmo
+  } //Revisar overflow, casos excepcionales, nos imaginamps el algoritmo
+
+
+  //---------------------------------------------------------------------------
 
   TK minKey();  // minimo valor de la llave en el arbol
   TK maxKey();  // maximo valor de la llave en el arbol
   void clear(); // eliminar todos lo elementos del arbol
   int size(); // retorna el total de elementos insertados  
   
+  //-----------------------------------------------------------------------------------
+
+
+
+  
+
+
+  private:
+
   // Construya un árbol B a partir de un vector de elementos ordenados
   static BTree* build_from_ordered_vector(vector<T> elements);
   // Verifique las propiedades de un árbol B
   bool check_properties();
 
-  private:
-  string toStringRecursive(Node<T>* node, string sep){
+
+  string toStringRecursive(Node<TK>* node, string sep){
     if(node == nullptr){
       return "";
     }
 
     string ac_str = "";
     for (int i=0; i<node->count; i++){
-      ac_str = ac_str + toStringRecursive(node->children[i]) + sep;
+      ac_str = ac_str + toStringRecursive(node->children[i], sep) + sep;
       ac_str = ac_str + (string)node->keys[i] + sep;
     }
-      ac_str = ac_str + toStringRecursive(node->children[node->count]);
+    ac_str = ac_str + toStringRecursive(node->children[node->count], sep);
+    
     return ac_str; 
   }
 
-  bool searchRecursive(Node<T>* node,T key){
+  bool searchRecursive(Node<TK>* node,T key){
     if (node == nullptr){
       return false; 
     }
@@ -133,6 +172,83 @@ class BTree {
     }
     return searchRecursive(node->children[node->count], key);
   }
+
+
+
+
+
+  void insertRecursive(Node<TK>* node, TK key) {
+      if (node->leaf) {
+          insertInLeaf(node, key);
+          return;
+      }
+      
+      int pos = findChildPosition(node, key);
+      
+      if (node->children[pos]->count == M - 1) {
+          split(node, pos);
+          // Recalculamosx la posición después del split
+          pos = findChildPosition(node, key);
+      }
+      insertRecursive(node->children[pos], key);
+  }
+
+  int findChildPosition(Node<TK>* node, TK key) {
+      int i = 0;
+      while (i < node->count && key >= node->keys[i]) {
+          i++;
+      }
+      return i;
+  }
+
+  void insertInLeaf(Node<TK>* leaf, TK key) {
+      int i = leaf->count - 1;
+      
+      while (i >= 0 && key < leaf->keys[i]) {
+          leaf->keys[i + 1] = leaf->keys[i];
+          i--;
+      }
+      
+      leaf->keys[i + 1] = key;
+      leaf->count++;
+  }
+
+  void split(Node<TK>* parent, int childIndex) {
+      Node<TK>* fullNode = parent->children[childIndex];
+      Node<TK>* newNode = new Node<TK>(M);
+      
+      int midIndex = M/2;  // Centro derecha para los M pares
+      TK midKey = fullNode->keys[midIndex];
+      
+      int newCount = 0;
+      for (int i = midIndex+1; i < fullNode->count; i++) {
+          newNode->keys[newCount++] = fullNode->keys[i];
+      }
+      newNode->count = newCount;
+      newNode->leaf = fullNode->leaf;
+      
+      if (!fullNode->leaf) {
+          for (int i=0; i <= newCount; i++) {
+              newNode->children[i] = fullNode->children[midIndex + 1 + i];
+          }
+      }
+      
+      fullNode->count = midIndex;
+      
+      insertInParent(parent, childIndex, midKey, newNode);
+  }
+
+  void insertInParent(Node<TK>* parent, int pos, TK key, Node<TK>* rightChild) {
+      for (int i = parent->count; i > pos; i--) {
+          parent->keys[i] = parent->keys[i - 1];
+          parent->children[i + 1] = parent->children[i];
+      }
+      parent->keys[pos] = key;
+      parent->children[pos + 1] = rightChild;
+      parent->count++;
+      parent->leaf = false;
+  }
+
 
   ~BTree();     // liberar memoria
 };

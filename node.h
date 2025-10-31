@@ -23,7 +23,23 @@ struct Node {
   }
 
   void killSelf() {
-    // TODO
+    if (children != nullptr) {
+      int n =count + 1;
+      for (int i = 0; i < n; i++) {
+        if (children[i] != nullptr) {
+          children[i]-> killSelf();
+        }
+      }
+      delete[] children;
+      children = nullptr;
+    }
+
+    if (keys != nullptr) {
+      delete[] keys;
+      keys = nullptr;
+    }
+
+    delete this;
   }
 };
 
