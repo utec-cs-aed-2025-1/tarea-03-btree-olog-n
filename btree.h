@@ -179,7 +179,7 @@ class BTree {
         if (node->count < M)
             return nullptr;
 
-        return splitNode(node, promoted);
+        return split(node, promoted);
     }
 
     int pos = findChildPosition(node, key);
@@ -201,10 +201,10 @@ class BTree {
     if (node->count < M)
         return nullptr;
 
-    return splitNode(node, promoted);
+    return split(node, promoted);
 }
 
-  Node<TK>* splitNode(Node<TK>* node, TK& promoted) {
+  Node<TK>* split(Node<TK>* node, TK& promoted) {
     int mid = M / 2;
     Node<TK>* newNode = new Node<TK>(M);
 
