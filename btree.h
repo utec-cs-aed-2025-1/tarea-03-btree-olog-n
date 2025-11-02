@@ -29,18 +29,19 @@ class BTree {
         return;
     }
 
-    if (root->count == M-1) {
+    TK promoted;
+    Node<TK>* newChild = insertRecursive(root, key, promoted);
+    if (newChild != nullptr) {
         Node<TK>* newRoot = new Node<TK>(M);
-        newRoot->leaf = false;
+        newRoot->keys[0] = promoted;
         newRoot->children[0] = root;
-        split(newRoot, 0);
+        newRoot->children[1] = newChild;
+        newRoot->count = 1;
+        newRoot->leaf = false;
         root = newRoot;
     }
-    
-    insertRecursive(root, key);
-    n++;  
-  }
-
+    n++;
+}
 
 
 
@@ -171,24 +172,59 @@ class BTree {
   }
 
 
+  Node<TK>* insertRecursive(Node<TK>* node, TK key, TK& promoted) {
+    if (node->leaf) {
+        insertInLeaf(node, key);
 
+        if (node->count < M)
+            return nullptr;
 
+        return splitNode(node, promoted);
+    }
 
-  void insertRecursive(Node<TK>* node, TK key) {
-      if (node->leaf) {
-          insertInLeaf(node, key);
-          return;
-      }
-      
-      int pos = findChildPosition(node, key);
-      
-      if (node->children[pos]->count == M - 1) {
-          split(node, pos);
-          // Recalculamosx la posición después del split
-          pos = findChildPosition(node, key);
-      }
-      insertRecursive(node->children[pos], key);
+    int pos = findChildPosition(node, key);
+    TK promotedChild;
+    Node<TK>* newChild = insertRecursive(node->children[pos], key, promotedChild);
+
+    if (newChild == nullptr)
+        return nullptr;
+
+    for (int i = node->count; i > pos; i--) {
+        node->keys[i] = node->keys[i - 1];
+        node->children[i + 1] = node->children[i];
+    }
+
+    node->keys[pos] = promotedChild;
+    node->children[pos + 1] = newChild;
+    node->count++;
+
+    if (node->count < M)
+        return nullptr;
+
+    return splitNode(node, promoted);
+}
+
+  Node<TK>* splitNode(Node<TK>* node, TK& promoted) {
+    int mid = M / 2;
+    Node<TK>* newNode = new Node<TK>(M);
+
+    promoted = node->keys[mid];
+    newNode->leaf = node->leaf;
+
+    for (int i = mid + 1; i < node->count; i++)
+        newNode->keys[i - (mid+1)] = node->keys[i];
+
+    if (!node->leaf) {
+        for (int i = mid + 1; i <= node->count; i++)
+            newNode->children[i - (mid+1)] = node->children[i];
+    }
+
+    newNode->count = M - mid - 1;
+    node->count = mid;
+
+    return newNode;
   }
+
 
   int findChildPosition(Node<TK>* node, TK key) {
       int i = 0;
@@ -210,41 +246,6 @@ class BTree {
       leaf->count++;
   }
 
-  void split(Node<TK>* parent, int childIndex) {
-      Node<TK>* fullNode = parent->children[childIndex];
-      Node<TK>* newNode = new Node<TK>(M);
-      
-      int midIndex = M/2;  // Centro derecha para los M pares
-      TK midKey = fullNode->keys[midIndex];
-      
-      int newCount = 0;
-      for (int i = midIndex+1; i < fullNode->count; i++) {
-          newNode->keys[newCount++] = fullNode->keys[i];
-      }
-      newNode->count = newCount;
-      newNode->leaf = fullNode->leaf;
-      
-      if (!fullNode->leaf) {
-          for (int i=0; i <= newCount; i++) {
-              newNode->children[i] = fullNode->children[midIndex + 1 + i];
-          }
-      }
-      
-      fullNode->count = midIndex;
-      
-      insertInParent(parent, childIndex, midKey, newNode);
-  }
-
-  void insertInParent(Node<TK>* parent, int pos, TK key, Node<TK>* rightChild) {
-      for (int i = parent->count; i > pos; i--) {
-          parent->keys[i] = parent->keys[i - 1];
-          parent->children[i + 1] = parent->children[i];
-      }
-      parent->keys[pos] = key;
-      parent->children[pos + 1] = rightChild;
-      parent->count++;
-      parent->leaf = false;
-  }
 
 
   ~BTree();     // liberar memoria
