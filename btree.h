@@ -205,7 +205,7 @@ class BTree {
 }
 
   Node<TK>* split(Node<TK>* node, TK& promoted) {
-    int mid = M / 2;
+    int mid = M/2;
     Node<TK>* newNode = new Node<TK>(M);
 
     promoted = node->keys[mid];
@@ -219,7 +219,7 @@ class BTree {
             newNode->children[i - (mid+1)] = node->children[i];
     }
 
-    newNode->count = M - mid - 1;
+    newNode->count = M-mid-1;
     node->count = mid;
 
     return newNode;
@@ -242,7 +242,7 @@ class BTree {
           i--;
       }
       
-      leaf->keys[i + 1] = key;
+      leaf->keys[i+1] = key;
       leaf->count++;
   }
 
