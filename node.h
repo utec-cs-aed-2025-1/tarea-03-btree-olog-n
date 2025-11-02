@@ -16,8 +16,8 @@ struct Node {
 
   Node() : keys(nullptr), children(nullptr), count(0) {}
   Node(int M) {
-    keys = new TK[M - 1];
-    children = new Node<TK>*[M];
+    keys = new TK[M];
+    children = new Node<TK>*[M+1];
     count = 0;
     leaf = true;
   }
@@ -44,12 +44,10 @@ struct Node {
 };
 
 template <typename T>
-struct Stk_Node{
-  private: 
+struct Stk_Node{ 
   T data;
   Stk_Node* next;
 
-  public:
   Stk_Node(){}
   Stk_Node(T e): data(e){}
   Stk_Node(T e, Stk_Node* n): data(e), next(n){}
@@ -118,7 +116,7 @@ class Iterator_BTree{ //Solo In order
     Iterator_BTree(Node<TK>* node): current(node){ 
       Node<TK>* temp = node;
       while (temp != nullptr) {
-        stack_iter.push(temp);
+        stack_nodo.push(temp);
         temp = temp->left;
       }
       ++(*this); //Current se convierte en el menor elemento
