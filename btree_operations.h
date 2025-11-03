@@ -79,19 +79,19 @@ bool checkPropertiesRecursive(Node<TK>* node, int M, int level, int& leafLevel, 
   }
   
   // Propiedad 2: Número mínimo y máximo de claves
-  int minKeys = isRoot ? 0 : (M + 1) / 2 - 1;  // Raíz puede tener 0 claves (árbol vacío)
+  int minKeys = isRoot ? 1 : (M + 1) / 2 - 1;
   int maxKeys = M - 1;  // Normalmente M-1, pero permitimos M temporalmente durante operaciones
   
   // Durante merge, un nodo puede temporalmente tener M claves
   // Solo verificamos que no exceda M
   if (node->count > M) {
-    std::cout << "ERROR: Nodo con demasiadas claves (" << node->count << " > " << M << ") en nivel " << level << std::endl;
+    std::cout << "ERROR: Nodo con demasiadas claves (" << node->count << " > " << M << ")" << std::endl;
     return false;
   }
   
   // Verificar mínimo solo si no es raíz
   if (!isRoot && node->count < minKeys) {
-    std::cout << "ERROR: Nodo con muy pocas claves (" << node->count << " < " << minKeys << ") en nivel " << level << ", isRoot=" << isRoot << std::endl;
+    std::cout << "ERROR: Nodo con muy pocas claves (" << node->count << " < " << minKeys << ")" << std::endl;
     return false;
   }
   
