@@ -105,7 +105,6 @@ class BTree {
     return result;
   } 
 
-  //---------------------------------------------------------------------------
 
   TK minKey(){  // minimo valor de la llave en el arbol
     if (root == nullptr) {
@@ -178,7 +177,7 @@ class BTree {
     }
     
     if (node->leaf) {
-      return 1;  // Un nodo hoja tiene altura 1
+      return 0;  // Un nodo hoja tiene altura 1
     }
     
     // Para un B-Tree balanceado, todos los caminos tienen la misma altura
