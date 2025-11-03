@@ -4,6 +4,7 @@
 #include <sstream>
 #include "node.h"
 #include <vector>
+#include "btree_operations.h"
 
 using namespace std;
 
@@ -13,8 +14,6 @@ class BTree {
   Node<TK>* root;
   int M;  // grado u orden del arbol
   int n; // total de elementos en el arbol 
-  Stack<Node<TK>*> stack_nodo;
-  Stack<int> stack_index; 
 
  public:
   BTree(int _M) : root(nullptr), M(_M), n(0) {}
@@ -46,7 +45,24 @@ class BTree {
     n++;  
   }
 
-  void remove(TK key);//elimina un elemento
+  void remove(TK key) { //elimina un elemento
+    if (root == nullptr) {
+      return;
+    }
+    
+    removeRecursive(root, key, M, n);
+    
+    // Si la raíz queda vacía después de la eliminación
+    if (root->count == 0) {
+      Node<TK>* oldRoot = root;
+      if (root->leaf) {
+        root = nullptr;
+      } else {
+        root = root->children[0];
+      }
+      delete oldRoot;
+    }
+  }
   
   int height(){//altura del arbol. Considerar altura 0 para arbol vacio
     return heightRecursive(root);
@@ -57,67 +73,12 @@ class BTree {
   }  
   
   vector<TK> rangeSearch(TK begin, TK end){
+    vector<TK> result;
     if(begin > end){
-      vector<TK> v = {};
-      return v;
+      return result;
     }
-    
-    //Search empieza aquíi
-    vector<TK> ans; 
-    Node<TK>* temp = root;
-    bool found = false;
-    
-    while (temp != nullptr && !found)
-    { 
-      int i =0;
-      while (i<temp->count && temp->keys[i] < begin)
-      { 
-        i++;
-      }
-      if(temp->keys[i] == begin){
-        found = true; 
-        stack_nodo.push(temp);  
-        stack_index.push(i);
-      }
-      else if(i==temp->count){
-        temp = temp->children[i]; //Bajas por hijo derecho
-      }
-      else{
-        stack_nodo.push(temp);
-        stack_index.push(i);
-
-        temp = temp->children[i];
-      }
-    }
-
-    // Se encontro o se encontro la posicion en donde deberia estar(en una hoja)
-    // Inorder
-    Node<TK>* current = stack_nodo.topM();
-    int index = stack_index.topM();
-
-    while (current->keys[index] <= end && !stack_nodo.isEmpty())
-    {
-      ans.push_back(current->keys[index]);
-
-      stack_nodo.pop();
-      stack_index.pop();
-      if(index != this->current->count - 1){ 
-        stack_nodo.push(current);
-        stack_index.push(index+1);
-      }
-      temp = current->children[index + 1]; 
-    
-      while (temp != nullptr) {
-        stack_nodo.push(temp);
-        stack_index.push(0);
-        temp = temp->children[0];
-      }
-
-      current = stack_nodo.topM();
-      index = stack_index.topM();
-    }
-
-    return ans; 
+    rangeSearchRecursive(root, begin, end, result);
+    return result;
   } 
 
   //---------------------------------------------------------------------------
@@ -163,9 +124,15 @@ class BTree {
 
   
   // Construya un árbol B a partir de un vector de elementos ordenados
-  static BTree* build_from_ordered_vector(vector<TK> elements);
+  static BTree* build_from_ordered_vector(vector<TK> elements, int M) {
+    return ::build_from_ordered_vector(elements, M);
+  }
+  
   // Verifique las propiedades de un árbol B
-  bool check_properties();
+  bool check_properties() {
+    int leafLevel = -1;
+    return checkPropertiesRecursive(root, M, 0, leafLevel, true);
+  }
   
   
   private:
