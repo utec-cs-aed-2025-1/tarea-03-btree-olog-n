@@ -7,7 +7,6 @@
 
 using namespace std;
 
-// ==================== INSERT HELPER FUNCTIONS ====================
 
 // Encuentra la posición del hijo donde debe ir la clave
 template <typename TK>
@@ -98,7 +97,7 @@ void insertRecursiveHelper(Node<TK>* node, TK key, int M) {
     return;
   }
   
-  // Encontrar el hijo apropiado
+  // Encontrar el hijo correcto
   int pos = findChildPosition(node, key);
   
   // Insertar recursivamente en el hijo
@@ -110,7 +109,6 @@ void insertRecursiveHelper(Node<TK>* node, TK key, int M) {
   }
 }
 
-// ==================== INSERT ====================
 
 template <typename TK>
 class BTree;  // Forward declaration
@@ -123,7 +121,6 @@ void insert(BTree<TK>* tree, TK key) {
   tree->insert(key);
 }
 
-// ==================== BUILD FROM ORDERED VECTOR ====================
 
 template <typename TK>
 BTree<TK>* build_from_ordered_vector(vector<TK> elements, int M) {
@@ -138,7 +135,6 @@ BTree<TK>* build_from_ordered_vector(vector<TK> elements, int M) {
   return tree;
 }
 
-// ==================== RANGE SEARCH ====================
 
 template <typename TK>
 void rangeSearchRecursive(Node<TK>* node, TK begin, TK end, vector<TK>& result) {
@@ -173,7 +169,6 @@ void rangeSearchRecursive(Node<TK>* node, TK begin, TK end, vector<TK>& result) 
   }
 }
 
-// ==================== CHECK PROPERTIES ====================
 
 template <typename TK>
 bool checkPropertiesRecursive(Node<TK>* node, int M, int level, int& leafLevel, bool isRoot) {
@@ -236,7 +231,6 @@ bool checkPropertiesRecursive(Node<TK>* node, int M, int level, int& leafLevel, 
   return true;
 }
 
-// ==================== REMOVE HELPER FUNCTIONS ====================
 
 // Encuentra el índice de la primera clave >= key
 template <typename TK>

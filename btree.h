@@ -296,7 +296,6 @@ class BTree {
 // Incluir las implementaciones de las funciones auxiliares
 #include "btree_operations.h"
 
-// ==================== IMPLEMENTACIONES DE LAS FUNCIONES PRINCIPALES ====================
 
 template <typename TK>
 void BTree<TK>::remove(TK key) {
