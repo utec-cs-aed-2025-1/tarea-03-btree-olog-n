@@ -20,6 +20,10 @@ struct Node {
     children = new Node<TK>*[M+1];
     count = 0;
     leaf = true;
+    // Inicializar todos los punteros a nullptr
+    for (int i = 0; i <= M; i++) {
+      children[i] = nullptr;
+    }
   }
 
   void killSelf() {
