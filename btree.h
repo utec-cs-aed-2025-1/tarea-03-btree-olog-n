@@ -28,7 +28,7 @@ class BTree {
   BTree(int _M) : root(nullptr), M(_M), n(0) {}
   BTree(Node<TK>* node, int _M): root(node), M(_M), n(node->count) {}
 
-  bool search(TK key){ //indica si se encuentra o no un elemento
+  bool search(TK key){ //indica si hay o no un elemento
     return searchRecursive(root, key);
   }
 
@@ -42,17 +42,15 @@ class BTree {
         return;
     }
 
-    // Insertar usando el enfoque post-inserción de btree_operations.h
+    // Insertamos usando el enfoque post-insertion de btree_operations.h
     insertRecursiveHelper(root, key, M);
     
-    // Si la raíz tiene overflow (M claves), dividirla
     if (root->count == M) {
         Node<TK>* newRoot = new Node<TK>(M);
         newRoot->leaf = false;
         newRoot->children[0] = root;
         newRoot->count = 0;
         
-        // Dividir la raíz usando la función de btree_operations.h
         splitNode(newRoot, 0, M);
         root = newRoot;
     }
@@ -65,10 +63,8 @@ class BTree {
       return;
     }
     
-    // Usar la función de btree_operations.h
     removeRecursive(root, key, M, n);
     
-    // Si la raíz quedó vacía después de la eliminación
     if (root->count == 0) {
       Node<TK>* oldRoot = root;
       if (root->leaf) {
@@ -80,13 +76,12 @@ class BTree {
     }
   }
   
-  int height(){//altura del arbol. Considerar altura 0 para arbol vacio
+  int height(){//altura del arbol. Consideramos altura 0 para arbol vacio
     return heightRecursive(root);
   }
   
-  string toString(const string& sep){ // recorrido inorder
+  string toString(const string& sep){ // es recorrido inorder
     string result = toStringRecursive(root, sep);
-    // Eliminar el último separador si existe
     if (!result.empty() && result.size() >= sep.size()) {
       if (result.substr(result.size() - sep.size()) == sep) {
         result = result.substr(0, result.size() - sep.size());
@@ -100,45 +95,41 @@ class BTree {
     if (begin > end || root == nullptr) {
       return result;
     }
-    // Usar la función de btree_operations.h
     rangeSearchRecursive(root, begin, end, result);
     return result;
   } 
 
+  //---------------------------------------------------------------------------
 
-  TK minKey(){  // minimo valor de la llave en el arbol
+  TK minKey(){ 
     if (root == nullptr) {
       throw std::runtime_error("El arbol esta vacio");
     }
     Node<TK>* current = root;
-    // Ir siempre al hijo más a la izquierda
     while (!current->leaf) {
       current = current->children[0];
     }
-    // El primer key del nodo hoja más a la izquierda es el mínimo
     return current->keys[0];
   }
   
-  TK maxKey(){  // maximo valor de la llave en el arbol
+  TK maxKey(){
     if (root == nullptr) {
       throw std::runtime_error("El arbol esta vacio");
     }
     Node<TK>* current = root;
-    // Ir siempre al hijo más a la derecha
     while (!current->leaf) {
       current = current->children[current->count];
     }
-    // El último key del nodo hoja más a la derecha es el máximo
     return current->keys[current->count - 1];
   }
   
-  void clear() { // Vaciar o eliminar todos los nodos del BTree
+  void clear() {
     clearRecursive(root);
     root = nullptr;
     n = 0;
   }
 
-  int size() { // retorna total de elementos insertador
+  int size() {
     return n;
   }
   
@@ -146,7 +137,6 @@ class BTree {
 
 
   
-  // Construya un árbol B a partir de un vector de elementos ordenados
   static BTree* build_from_ordered_vector(vector<TK> elements, int M) {
     if (elements.empty()) {
       return new BTree<TK>(M);
@@ -159,13 +149,11 @@ class BTree {
     return tree;
   }
   
-  // Verifique las propiedades de un árbol B
   bool check_properties() {
     if (root == nullptr) {
       return true;
     }
     int leafLevel = -1;
-    // Usar la función de btree_operations.h
     return checkPropertiesRecursive(root, M, 0, leafLevel, true);
   }
   
@@ -173,15 +161,12 @@ class BTree {
   private:
   int heightRecursive(Node<TK>* node) {
     if (node == nullptr) {
-      return 0;  // Árbol vacío tiene altura 0
+      return 0;
     }
     
-    if (node->leaf) {
-      return 0;  // Un nodo hoja tiene altura 1
-    }
+    if (node->leaf) 
+      return 0;
     
-    // Para un B-Tree balanceado, todos los caminos tienen la misma altura
-    // Basta con seguir cualquier camino (usamos el primero)
     return 1 + heightRecursive(node->children[0]);
   }
 
@@ -237,11 +222,11 @@ class BTree {
 
   public: 
   ~BTree() {
-    clear();  // Assuming clear() properly deletes all nodes
+    clear();
   }
 };
 
-// Incluir las implementaciones de btree_operations.h después de la definición de la clase
+// Incluimos las implementaciones de btree_operations.h después de la definición de la clase
 #include "btree_operations.h"
 
 #endif
