@@ -7,10 +7,123 @@
 
 using namespace std;
 
-// ==================== BUILD FROM ORDERED VECTOR ====================
+// ==================== INSERT HELPER FUNCTIONS ====================
+
+// Encuentra la posición del hijo donde debe ir la clave
+template <typename TK>
+int findChildPosition(Node<TK>* node, TK key) {
+  int i = 0;
+  while (i < node->count && key >= node->keys[i]) {
+    i++;
+  }
+  return i;
+}
+
+// Inserta una clave en un nodo hoja manteniendo el orden
+template <typename TK>
+void insertInLeaf(Node<TK>* leaf, TK key) {
+  int i = leaf->count - 1;
+  
+  // Desplazar las claves mayores a la derecha
+  while (i >= 0 && key < leaf->keys[i]) {
+    leaf->keys[i + 1] = leaf->keys[i];
+    i--;
+  }
+  
+  // Insertar la nueva clave
+  leaf->keys[i + 1] = key;
+  leaf->count++;
+}
+
+// Inserta una clave y un hijo derecho en un nodo padre
+template <typename TK>
+void insertInParent(Node<TK>* parent, int pos, TK key, Node<TK>* rightChild) {
+  // Desplazar claves e hijos a la derecha
+  for (int i = parent->count; i > pos; i--) {
+    parent->keys[i] = parent->keys[i - 1];
+    parent->children[i + 1] = parent->children[i];
+  }
+  
+  // Insertar la nueva clave y el hijo derecho
+  parent->keys[pos] = key;
+  parent->children[pos + 1] = rightChild;
+  parent->count++;
+  parent->leaf = false;
+}
+
+// Divide un nodo lleno (con M claves) en dos nodos
+template <typename TK>
+void splitNode(Node<TK>* parent, int childIndex, int M) {
+  Node<TK>* fullNode = parent->children[childIndex];
+  Node<TK>* newNode = new Node<TK>(M);
+  
+  // Para split post-inserción: fullNode tiene M claves
+  // Dividimos: left tendrá M/2 claves, midKey sube, right tendrá M - M/2 - 1 claves
+  int midIndex = M / 2;
+  TK midKey = fullNode->keys[midIndex];
+  
+  // Copiar claves a la derecha del midIndex al nuevo nodo (right)
+  int newCount = 0;
+  for (int i = midIndex + 1; i < fullNode->count; i++) {
+    newNode->keys[newCount++] = fullNode->keys[i];
+  }
+  newNode->count = newCount;
+  newNode->leaf = fullNode->leaf;
+  
+  // Si no es hoja, copiar también los hijos
+  if (!fullNode->leaf) {
+    // El nuevo nodo recibe los hijos desde midIndex+1 hasta el final
+    for (int i = 0; i <= newCount; i++) {
+      newNode->children[i] = fullNode->children[midIndex + 1 + i];
+    }
+    // Limpiar los punteros no usados en fullNode
+    for (int i = midIndex + 1; i <= fullNode->count; i++) {
+      fullNode->children[i] = nullptr;
+    }
+  }
+  
+  // Actualizar el count del nodo izquierdo (solo las claves antes de midIndex)
+  fullNode->count = midIndex;
+  
+  // Insertar la clave media y el nuevo nodo en el padre
+  insertInParent(parent, childIndex, midKey, newNode);
+}
+
+// Función recursiva de inserción
+template <typename TK>
+void insertRecursiveHelper(Node<TK>* node, TK key, int M) {
+  if (node->leaf) {
+    // Insertar en hoja
+    insertInLeaf(node, key);
+    return;
+  }
+  
+  // Encontrar el hijo apropiado
+  int pos = findChildPosition(node, key);
+  
+  // Insertar recursivamente en el hijo
+  insertRecursiveHelper(node->children[pos], key, M);
+  
+  // Después de insertar, verificar si el hijo tiene overflow
+  if (node->children[pos]->count == M) {
+    splitNode(node, pos, M);
+  }
+}
+
+// ==================== INSERT ====================
 
 template <typename TK>
 class BTree;  // Forward declaration
+
+template <typename TK>
+void insert(BTree<TK>* tree, TK key) {
+  if (tree == nullptr) {
+    return;
+  }
+  tree->insert(key);
+}
+
+// ==================== BUILD FROM ORDERED VECTOR ====================
 
 template <typename TK>
 BTree<TK>* build_from_ordered_vector(vector<TK> elements, int M) {
