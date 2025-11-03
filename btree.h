@@ -68,13 +68,13 @@ class BTree {
     }
   }
   
-  int height(){//altura del arbol. Considerar altura 0 para arbol vacio
+  int height(){//altura del arbol. 
     return heightRecursive(root);
   }
   
   string toString(const string& sep){ // recorrido inorder
     string result = toStringRecursive(root, sep);
-    // Eliminar el separador final si existe
+    
     if (!result.empty() && result.size() >= sep.size()) {
       if (result.substr(result.size() - sep.size()) == sep) {
         result = result.substr(0, result.size() - sep.size());
@@ -93,49 +93,44 @@ class BTree {
     return result;
   } 
 
-  //---------------------------------------------------------------------------
 
-  TK minKey(){  // minimo valor de la llave en el arbol
+  TK minKey(){  
     if (root == nullptr) {
       throw std::runtime_error("El arbol esta vacio");
     }
     Node<TK>* current = root;
-    // Ir siempre al hijo más a la izquierda
+    
     while (!current->leaf) {
       current = current->children[0];
     }
-    // El primer key del nodo hoja más a la izquierda es el mínimo
+    
     return current->keys[0];
   }
   
-  TK maxKey(){  // maximo valor de la llave en el arbol
+  TK maxKey(){  
     if (root == nullptr) {
       throw std::runtime_error("El arbol esta vacio");
     }
     Node<TK>* current = root;
-    // Ir siempre al hijo más a la derecha
+    
     while (!current->leaf) {
       current = current->children[current->count];
     }
-    // El último key del nodo hoja más a la derecha es el máximo
+    
     return current->keys[current->count - 1];
   }
   
-  void clear() { // Vaciar o eliminar todos los nodos del BTree
+  void clear() { 
     clearRecursive(root);
     root = nullptr;
     n = 0;
   }
 
-  int size() { // retorna total de elementos insertador
+  int size() { 
     return n;
   }
   
-  //-----------------------------------------------------------------------------------
 
-
-  
-  // Construya un árbol B a partir de un vector de elementos ordenados
   static BTree* build_from_ordered_vector(vector<TK> elements, int M) {
     if (elements.empty()) {
       return new BTree<TK>(M);
@@ -147,11 +142,11 @@ class BTree {
     }
     return tree;
   }
-  
-  // Verifique las propiedades de un árbol B
+
+
   bool check_properties() {
     if (root == nullptr) {
-      return true; // Árbol vacío es válido
+      return true;
     }
     
     int leafLevel = -1;
@@ -160,7 +155,6 @@ class BTree {
   
   
   private:
-  // ==================== FUNCIÓN AUXILIAR PARA RANGESEARCH ====================
   
   void rangeSearchRecursive(Node<TK>* node, TK begin, TK end, vector<TK>& result) {
     if (node == nullptr) {
@@ -449,7 +443,7 @@ class BTree {
       } else {
         removeFromNonLeaf(node, idx);
         // No decrementamos aquí porque removeFromNonLeaf mueve una clave de una hoja
-        // y la llamada recursiva a removeRecursive decrementará n cuando elimine de la hoja
+        // y la llamada recursiva a removeRecursive disminuirá n cuando elimine de la hoja
       }
     } else {
       // Caso 2: La clave debe estar en un subárbol
